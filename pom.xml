@@ -11,8 +11,8 @@
     <name>Todo Application</name>
     <description>A Java Swing-based Todo Application with MySQL database</description>
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>24</maven.compiler.source>
+        <maven.compiler.target>24</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mysql.version>8.0.33</mysql.version>
     </properties>
@@ -32,8 +32,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <release>24</release>
                 </configuration>
             </plugin>
             <!-- Maven Exec Plugin for running the application -->
