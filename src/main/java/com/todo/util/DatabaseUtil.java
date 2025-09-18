@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class DatabaseUtil {
 
     // Update these values to match your MySQL setup
-    private static final String URL = "jdbc:mysql://localhost:3306/todo?useSSL=false&serverTimezone=UTC";
+    private static final String URL = "jdbc:mysql://localhost:3306/todo?useSSL=true&serverTimezone=UTC";
     private static final String USER = "root";      // replace with your MySQL username
     private static final String PASSWORD = "Dhina@311";  // replace with your MySQL password
 
@@ -20,7 +20,7 @@ public class DatabaseUtil {
         }
     }
     // Get a database connection
-    public Connection getDBConnection() throws SQLException {
+    public static Connection getDBConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 

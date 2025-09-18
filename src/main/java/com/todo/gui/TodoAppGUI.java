@@ -3,16 +3,16 @@ package com.todo.gui;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
-import com.todo.dao.todoDAO;
-
+import com.todo.dao.TodoDao;
+import com.todo.model.Todo;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.List;
 
-public class TodoAppGUI extends JFrame{
-    private com.todo.dao.todoDAO todoDAO;
+public class TodoAppGUI extends JFrame {
+    private TodoDao todoDAO;
     private JTable todoTable;
     private DefaultTableModel tableModel;
     private JTextField titleField;
@@ -24,22 +24,24 @@ public class TodoAppGUI extends JFrame{
     private JButton refreshButton;
     private JComboBox<String> filterComboBox;
 
-    public TodoAppGUI(){
-        this.todoDAO = new com.todo.dao.todoDAO();
-        initializeComponents();
-        setuplayout();
+    public TodoAppGUI() {
+    this.todoDAO = new TodoDao();
+    initializeComponents();
+    setuplayout();
+    setupeventlisteners();
+    loadTodos();
     }
 
-    private void initializeComponents(){
+    private void initializeComponents() {
         setTitle("Todo Application");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800,600);
+        setSize(800, 600);
         setLocationRelativeTo(null);
 
-        String[] columnNames = {"ID","Title","Description","Completed","Created At","Updated At"};
-        tableModel = new DefaultTableModel(columnNames,0){
+        String[] columnNames = { "ID", "Title", "Description", "Completed", "Created At", "Updated At" };
+        tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
-            public boolean isCellEditable(int row,int column){
+            public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
@@ -47,15 +49,14 @@ public class TodoAppGUI extends JFrame{
         todoTable = new JTable(tableModel);
         todoTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         todoTable.getSelectionModel().addListSelectionListener(
-            (e)->{
-                if(!e.getValueIsAdjusting()){
-                    // loadSelectedtodo();
-                }
-            }
-        );
+                (e) -> {
+                    if (!e.getValueIsAdjusting()) {
+                        // loadSelectedtodo();
+                    }
+                });
 
         titleField = new JTextField(20);
-        descriptionArea = new JTextArea(3,20);
+        descriptionArea = new JTextArea(3, 20);
         descriptionArea.setLineWrap(true);
         descriptionArea.setWrapStyleWord(true);
 
@@ -66,36 +67,101 @@ public class TodoAppGUI extends JFrame{
         deleteButton = new JButton("Delete Todo");
         refreshButton = new JButton("Refresh Todo");
 
-        String[] filteroptions = {"All","Completed","Pending"};
+        String[] filteroptions = { "All", "Completed", "Pending" };
         filterComboBox = new JComboBox<>(filteroptions);
         filterComboBox.addActionListener((e) -> {
-            //filterTodos()
+            // filterTodos()
         });
     }
-    private void setuplayout(){
+
+    private void setuplayout() {
         setLayout(new BorderLayout());
-    JPanel inputPanel = new JPanel(new GridBagLayout());
+        JPanel inputPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5,5,5,5);
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
-        inputPanel.add(new JLabel("Title:"),gbc);
+        inputPanel.add(new JLabel("Title:"), gbc);
         gbc.gridx = 1;
-        // gbc.fill = GridBagConstraints.HORIZONTAL;
-        inputPanel.add(titleField,gbc);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        inputPanel.add(titleField, gbc);
         gbc.gridx = 0;
         gbc.gridy = 1;
-        inputPanel.add(new JLabel("Description:"),gbc);
+        inputPanel.add(new JLabel("Description:"), gbc);
         gbc.gridx = 1;
-        inputPanel.add(descriptionArea,gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        inputPanel.add(completCheckBox,gbc);
-        add(inputPanel,BorderLayout.NORTH);
+        inputPanel.add(new JScrollPane(descriptionArea), gbc);
+        // gbc.gridx = 1;
+        gbc.gridx = 2;
+        inputPanel.add(completCheckBox, gbc);
 
+        JPanel buttoPanel = new JPanel(new FlowLayout());
+        buttoPanel.add(addButton);
+        buttoPanel.add(updateButton);
+        buttoPanel.add(deleteButton);
+        buttoPanel.add(refreshButton);
 
-        
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        filterPanel.add(new JLabel("Filter:"));
+        filterPanel.add(filterComboBox);
 
+        JPanel northPanel = new JPanel(new BorderLayout());
+        northPanel.add(inputPanel, BorderLayout.CENTER);
+        northPanel.add(buttoPanel, BorderLayout.SOUTH);
+        northPanel.add(filterPanel, BorderLayout.NORTH);
+
+        add(northPanel, BorderLayout.NORTH);
+
+        add(new JScrollPane(todoTable), BorderLayout.CENTER);
+
+        JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        statusPanel.add(new JLabel("Select a todo item to update or delete."));
+        add(statusPanel, BorderLayout.SOUTH);
+    }
+
+    private void setupeventlisteners() {
+        addButton.addActionListener(e -> addtodo());
+        updateButton.addActionListener(e -> updatetodo());
+        deleteButton.addActionListener(e -> deletetodo());
+        refreshButton.addActionListener(e -> refreshtodo());
+    }
+
+    private void addtodo() {
+
+    }
+
+    private void updatetodo() {
+
+    }
+
+    private void deletetodo() {
+
+    }
+
+    private void refreshtodo() {
+    loadTodos();
+    }
+
+    private void loadTodos() {
+
+        try {
+            List<Todo> todos = todoDAO.getAllTodos();
+            updateTable(todos);
+
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            JOptionPane.showMessageDialog(this, "Error loading todos: " + e.getMessage(), "DatabaseError",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
+
+    private void updateTable(List<Todo> todos) {
+        tableModel.setRowCount(0);
+        for (Todo t : todos) {
+            Object[] row = { t.getId(), t.getTitle(), t.getDescription(), t.isCompleted(), t.getCreate_at(),
+                    t.getUpdate_at() };
+            tableModel.addRow(row);
+        }
     }
 }
