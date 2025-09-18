@@ -2,7 +2,6 @@ package com.todo.gui;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-
 import com.todo.dao.TodoDao;
 import com.todo.model.Todo;
 import java.awt.*;
@@ -25,11 +24,11 @@ public class TodoAppGUI extends JFrame {
     private JComboBox<String> filterComboBox;
 
     public TodoAppGUI() {
-    this.todoDAO = new TodoDao();
-    initializeComponents();
-    setuplayout();
-    setupeventlisteners();
-    loadTodos();
+        this.todoDAO = new TodoDao();
+        initializeComponents();
+        setuplayout();
+        setupeventlisteners();
+        loadTodos();
     }
 
     private void initializeComponents() {
@@ -127,7 +126,27 @@ public class TodoAppGUI extends JFrame {
     }
 
     private void addtodo() {
+        String title = titleField.getText().trim();
+        String description = descriptionArea.getText().trim();
+        boolean completed = completCheckBox.isSelected();
 
+        if (title.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Title cannot be empty.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        try {
+            Todo newTodo = new Todo(title, description);
+            newTodo.setCompleted(completed);
+            int newId = todoDAO.createtodo(newTodo);
+            newTodo.setId(newId);
+            loadTodos();
+            titleField.setText("");
+            descriptionArea.setText("");
+            completCheckBox.setSelected(false);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error adding todo: " + e.getMessage(), "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void updatetodo() {
@@ -139,7 +158,7 @@ public class TodoAppGUI extends JFrame {
     }
 
     private void refreshtodo() {
-    loadTodos();
+        loadTodos();
     }
 
     private void loadTodos() {

@@ -10,7 +10,6 @@ public class Todo {
     public Todo() {
         this.create_at = LocalDateTime.now();
         this.update_at = LocalDateTime.now();
-        this.completed = false;
     }
     public Todo(String title, String description) {
         this();
