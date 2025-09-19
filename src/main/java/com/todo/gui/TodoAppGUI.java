@@ -50,7 +50,7 @@ public class TodoAppGUI extends JFrame {
         todoTable.getSelectionModel().addListSelectionListener(
                 (e) -> {
                     if (!e.getValueIsAdjusting()) {
-                        // loadSelectedtodo();
+                         loadSelectedtodo();
                     }
                 });
 
@@ -149,8 +149,20 @@ public class TodoAppGUI extends JFrame {
         }
     }
 
-    private void updatetodo() {
+    private void loadSelectedtodo() {
+        int selectedRow = todoTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            String title = (String) tableModel.getValueAt(selectedRow, 1);
+            String description = (String) tableModel.getValueAt(selectedRow, 2);
+            Boolean completed = (boolean) tableModel.getValueAt(selectedRow, 3);
 
+            titleField.setText(title);
+            descriptionArea.setText(description);
+            completCheckBox.setSelected(completed);
+        }
+    }
+
+    private void updatetodo() {
     }
 
     private void deletetodo() {
