@@ -198,11 +198,30 @@ public class TodoAppGUI extends JFrame {
     
 
     private void deletetodo() {
-
+        int selectedRows = todoTable.getSelectedRow();
+        if(selectedRows < 0){
+            JOptionPane.showMessageDialog(this, "Please select a todo to delete.", "Selection Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int id = (int)todoTable.getValueAt(selectedRows, 0);
+        try{
+            boolean deleted = todoDAO.deleteTodo(id);
+            if(deleted){
+                JOptionPane.showMessageDialog(this,"Todo deleted successfully.","Success",JOptionPane.INFORMATION_MESSAGE);
+                loadTodos();
+            }
+            else{
+                JOptionPane.showMessageDialog(this, "Failed to delete Todo", "Delete Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }catch(SQLException e){
+            JOptionPane.showMessageDialog(this, "Error deleting todo: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
+    
 
     private void refreshtodo() {
         loadTodos();
+        JOptionPane.showMessageDialog(this, "Todo list refreshed.", "Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void loadTodos() {

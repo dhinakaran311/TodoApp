@@ -15,22 +15,34 @@ import java.sql.Timestamp;
 public class TodoDao {
     private static final String SELECT_ALL_TODOS = "SELECT * from todos ORDER BY create_at DESC";
     private static final String INSERT_TODO = "INSERT INTO todos (title, description, completed,create_at,update_at) VALUES (?, ?, ?,?,?)";
-    private static final String SELECT_TODO_BY_ID= "SELECT * FROM todos WHERE id = ?";
+    private static final String SELECT_TODO_BY_ID = "SELECT * FROM todos WHERE id = ?";
     private static final String UPDATE_TODO = "UPDATE todos SET title=?, description=?, completed=?, update_at=? WHERE id=?";
     private static final String DELETE_TODO = "DELETE FROM todos WHERE id=?";
+
+    public boolean deleteTodo(int id) throws SQLException {
+        try (Connection conn = DatabaseUtil.getDBConnection();
+                PreparedStatement stmt = conn.prepareStatement(DELETE_TODO)) {
+            try {
+                stmt.setInt(1, id);
+                int rowsAffected = stmt.executeUpdate();
+                return rowsAffected > 0;
+            } catch (SQLException e) {
+                throw new SQLException("Error deleting todo: " + e.getMessage());
+            }
+        }
+    }
 
     public int createtodo(Todo todo) throws SQLException {
         try (
                 Connection conn = DatabaseUtil.getDBConnection();
-                PreparedStatement stmt = conn.prepareStatement(INSERT_TODO, Statement.RETURN_GENERATED_KEYS);) 
-        {
+                PreparedStatement stmt = conn.prepareStatement(INSERT_TODO, Statement.RETURN_GENERATED_KEYS);) {
             stmt.setString(1, todo.getTitle());
             stmt.setString(2, todo.getDescription());
             stmt.setBoolean(3, todo.isCompleted());
             stmt.setTimestamp(4, Timestamp.valueOf(todo.getCreate_at()));
             stmt.setTimestamp(5, Timestamp.valueOf(todo.getUpdate_at()));
-            int rowAffeted=stmt.executeUpdate();
-            if(rowAffeted==0){
+            int rowAffeted = stmt.executeUpdate();
+            if (rowAffeted == 0) {
                 throw new SQLException("Creating todo failed, no rows affected.");
             }
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
@@ -40,7 +52,7 @@ public class TodoDao {
                     throw new SQLException("Creating todo failed, no ID obtained.");
                 }
             }
-            
+
         }
     }
 
@@ -66,29 +78,31 @@ public class TodoDao {
         }
         return todos;
     }
-    public boolean updatetodo(Todo todo) throws SQLException{
+
+    public boolean updatetodo(Todo todo) throws SQLException {
         // Update logic to be implemented
-        try(Connection conn=DatabaseUtil.getDBConnection();
-            PreparedStatement stmt=conn.prepareStatement(UPDATE_TODO);){
-                stmt.setString(1, todo.getTitle());
-                stmt.setString(2, todo.getDescription());
-                stmt.setBoolean(3, todo.isCompleted());
-                stmt.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
-                stmt.setInt(5, todo.getId());
-                int rowsAffected=stmt.executeUpdate();
-                return rowsAffected>0;
-            }
+        try (Connection conn = DatabaseUtil.getDBConnection();
+                PreparedStatement stmt = conn.prepareStatement(UPDATE_TODO);) {
+            stmt.setString(1, todo.getTitle());
+            stmt.setString(2, todo.getDescription());
+            stmt.setBoolean(3, todo.isCompleted());
+            stmt.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
+            stmt.setInt(5, todo.getId());
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
     }
-    public Todo getTodobyId(int id) throws SQLException{
-        try(Connection conn=DatabaseUtil.getDBConnection();
-            PreparedStatement stmt=conn.prepareStatement(SELECT_TODO_BY_ID);){
-                stmt.setInt(1, id);
-                try(ResultSet res=stmt.executeQuery();){
-                    if(res.next()){
-                        return geTodorow(res);
-                    }
+
+    public Todo getTodobyId(int id) throws SQLException {
+        try (Connection conn = DatabaseUtil.getDBConnection();
+                PreparedStatement stmt = conn.prepareStatement(SELECT_TODO_BY_ID);) {
+            stmt.setInt(1, id);
+            try (ResultSet res = stmt.executeQuery();) {
+                if (res.next()) {
+                    return geTodorow(res);
                 }
-                return null;
             }
+            return null;
+        }
     }
 }
