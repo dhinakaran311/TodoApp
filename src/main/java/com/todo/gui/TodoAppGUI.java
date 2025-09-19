@@ -50,7 +50,7 @@ public class TodoAppGUI extends JFrame {
         todoTable.getSelectionModel().addListSelectionListener(
                 (e) -> {
                     if (!e.getValueIsAdjusting()) {
-                         loadSelectedtodo();
+                        loadSelectedtodo();
                     }
                 });
 
@@ -163,7 +163,39 @@ public class TodoAppGUI extends JFrame {
     }
 
     private void updatetodo() {
-    }
+        int selectedRow = todoTable.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a todo to update.", "Selection Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+            int id = (int) tableModel.getValueAt(selectedRow, 0);
+            Todo todo = null;
+            try {
+                todo = todoDAO.getTodobyId(id);
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error retrieving todo: " + e.getMessage(), "Database Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (todo != null) {
+                todo.setTitle(titleField.getText().trim());
+                todo.setDescription(descriptionArea.getText().trim());
+                todo.setCompleted(completCheckBox.isSelected());
+                try {
+                    boolean success = todoDAO.updatetodo(todo);
+                    if (success) {
+                        JOptionPane.showMessageDialog(this, "Todo updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        loadTodos();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Failed to update todo.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (SQLException e) {
+                    JOptionPane.showMessageDialog(this, "Error updating todo: " + e.getMessage(), "Database Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    
 
     private void deletetodo() {
 

@@ -15,6 +15,9 @@ import java.sql.Timestamp;
 public class TodoDao {
     private static final String SELECT_ALL_TODOS = "SELECT * from todos ORDER BY create_at DESC";
     private static final String INSERT_TODO = "INSERT INTO todos (title, description, completed,create_at,update_at) VALUES (?, ?, ?,?,?)";
+    private static final String SELECT_TODO_BY_ID= "SELECT * FROM todos WHERE id = ?";
+    private static final String UPDATE_TODO = "UPDATE todos SET title=?, description=?, completed=?, update_at=? WHERE id=?";
+    private static final String DELETE_TODO = "DELETE FROM todos WHERE id=?";
 
     public int createtodo(Todo todo) throws SQLException {
         try (
@@ -55,12 +58,37 @@ public class TodoDao {
     public List<Todo> getAllTodos() throws SQLException {
         List<Todo> todos = new ArrayList<>();
         try (Connection conn = DatabaseUtil.getDBConnection();
-                PreparedStatement stmt = conn.prepareStatement("SELECT * FROM todos ORDER BY create_at DESC");
+                PreparedStatement stmt = conn.prepareStatement(SELECT_ALL_TODOS);
                 ResultSet res = stmt.executeQuery()) {
             while (res.next()) {
                 todos.add(geTodorow(res));
             }
         }
         return todos;
+    }
+    public boolean updatetodo(Todo todo) throws SQLException{
+        // Update logic to be implemented
+        try(Connection conn=DatabaseUtil.getDBConnection();
+            PreparedStatement stmt=conn.prepareStatement(UPDATE_TODO);){
+                stmt.setString(1, todo.getTitle());
+                stmt.setString(2, todo.getDescription());
+                stmt.setBoolean(3, todo.isCompleted());
+                stmt.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
+                stmt.setInt(5, todo.getId());
+                int rowsAffected=stmt.executeUpdate();
+                return rowsAffected>0;
+            }
+    }
+    public Todo getTodobyId(int id) throws SQLException{
+        try(Connection conn=DatabaseUtil.getDBConnection();
+            PreparedStatement stmt=conn.prepareStatement(SELECT_TODO_BY_ID);){
+                stmt.setInt(1, id);
+                try(ResultSet res=stmt.executeQuery();){
+                    if(res.next()){
+                        return geTodorow(res);
+                    }
+                }
+                return null;
+            }
     }
 }
