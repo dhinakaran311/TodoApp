@@ -230,6 +230,7 @@ public class TodoAppGUI extends JFrame {
 
     private void refreshtodo() {
         loadTodos();
+        filterComboBox.setSelectedIndex(0);
         JOptionPane.showMessageDialog(this, "Todo list refreshed.", "Info", JOptionPane.INFORMATION_MESSAGE);
         titleField.setText("");
         descriptionArea.setText("");

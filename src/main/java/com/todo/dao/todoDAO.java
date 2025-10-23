@@ -18,8 +18,7 @@ public class TodoDao {
     private static final String SELECT_TODO_BY_ID = "SELECT * FROM todos WHERE id = ?";
     private static final String UPDATE_TODO = "UPDATE todos SET title=?, description=?, completed=?, update_at=? WHERE id=?";
     private static final String DELETE_TODO = "DELETE FROM todos WHERE id=?";
-    private static final String SELECT_COMPLETED_TODOS = "SELECT * FROM todos WHERE completed = true ORDER BY create_at DESC";
-    private static final String SELECT_NOT_COMPLETED_TODOS = "SELECT * FROM todos WHERE completed = false ORDER BY create_at DESC";
+    private static final String FILTER_TODOS = "SELECT * FROM todos WHERE completed = ? ORDER BY create_at DESC";
 
     public boolean deleteTodo(int id) throws SQLException {
         try (Connection conn = DatabaseUtil.getDBConnection();
@@ -58,7 +57,7 @@ public class TodoDao {
         }
     }
 
-    private Todo geTodorow(ResultSet res) throws SQLException // Mapping ResultSet to Todo Object
+    private Todo  geTodorow(ResultSet res) throws SQLException // Mapping ResultSet to Todo Object
     {
         int id = res.getInt("id");
         String title = res.getString("title");
@@ -83,7 +82,10 @@ public class TodoDao {
 
     public List<Todo> getCompletedTodos() throws SQLException {
         try (Connection conn = DatabaseUtil.getDBConnection();
-                PreparedStatement stmt = conn.prepareStatement(SELECT_COMPLETED_TODOS);) {
+                PreparedStatement stmt = conn.prepareStatement(FILTER_TODOS);) {
+            boolean completed = true;
+            stmt.setBoolean(1, completed);
+
             List<Todo> todos = new ArrayList<>();
             try (ResultSet res = stmt.executeQuery();) {
                 while (res.next()) {
@@ -96,7 +98,10 @@ public class TodoDao {
 
     public List<Todo> getNotCompletedTodos() throws SQLException {
         try (Connection conn = DatabaseUtil.getDBConnection();
-                PreparedStatement stmt = conn.prepareStatement(SELECT_NOT_COMPLETED_TODOS);) {
+                PreparedStatement stmt = conn.prepareStatement(FILTER_TODOS);) {
+            boolean completed = false;
+            stmt.setBoolean(1, completed);
+ 
             List<Todo> todos = new ArrayList<>();
             try (ResultSet res = stmt.executeQuery();) {
                 while (res.next()) {
