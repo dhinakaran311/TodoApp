@@ -21,6 +21,10 @@ A desktop task management application built with Java Swing and MySQL for organi
 
 The Todo Application is a Java-based desktop application that helps users manage their tasks efficiently. With an intuitive graphical interface, users can create, update, delete, and filter todos while tracking completion status and timestamps. The application uses MySQL for persistent storage and follows the MVC architectural pattern.
 
+## Screenshots
+
+![Todo Application Interface](todo.png)
+
 ## Features
 
 ### Task Management
